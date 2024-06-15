@@ -11,7 +11,9 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 add_executable(main src/main.cpp)
-target_link_libraries(main PRIVATE sfml-graphics)
+target_link_libraries(main PRIVATE sfml-graphics
+                    C:/Users/cidmo/Documents/CS_PROJECT/LearnCpp/A2/Assignement_2/src/Vec2.cpp
+)
 target_compile_features(main PRIVATE cxx_std_17)
 
 if(WIN32)

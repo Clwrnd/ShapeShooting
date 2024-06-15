@@ -1,21 +1,13 @@
 #include <SFML/Graphics.hpp>
+#include "Vec2.h"
+#include<iostream>
+#include <string>
 
 int main()
 {
-    auto window = sf::RenderWindow{ { 1920u, 1080u }, "CMake SFML Project" };
-    window.setFramerateLimit(60);
+    Vec2 s(721,-134);
+    Vec2 q(143.92,2.21);
 
-    while (window.isOpen())
-    {
-        for (auto event = sf::Event{}; window.pollEvent(event);)
-        {
-            if (event.type == sf::Event::Closed)
-            {
-                window.close();
-            }
-        }
-
-        window.clear();
-        window.display();
-    }
+    std::cout << "test";
+    std::cout << s.dist(q) ;
 }
