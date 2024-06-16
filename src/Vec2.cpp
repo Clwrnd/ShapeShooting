@@ -62,6 +62,7 @@ void Vec2::operator-=(const Vec2 toSou)
     y = y - toSou.y;
 }
 
-float Vec2::dist(const Vec2 & toComp) const {
-    return ( std::sqrt( (x-toComp.x)*(x-toComp.x) + (y-toComp.y)*(y-toComp.y) ) );
+float Vec2::dist(const Vec2 &toComp) const
+{
+    return (std::sqrt((x - toComp.x) * (x - toComp.x) + (y - toComp.y) * (y - toComp.y)));
 }

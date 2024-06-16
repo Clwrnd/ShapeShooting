@@ -1,0 +1,28 @@
+#include <string>
+#include "Component.h"
+
+class Entity
+{
+    friend class EntityManager;
+
+private:
+    bool active = true;
+    size_t id = 0;
+    std::string tag = "default";
+
+    Entity(const size_t id_in, const std::string &tag_in);
+
+public:
+    std::shared_ptr<CTransform> cTransform;
+    std::shared_ptr<CShape> cShape;
+    std::shared_ptr<CCollision> cCollision;
+    std::shared_ptr<CScore> cScore;
+    std::shared_ptr<CLifespan> cLifespan;
+    std::shared_ptr<CInput> cInput;
+
+    bool isActive() const;
+    size_t id() const;
+    std::string tag() const;
+    void destroy();        
+    
+};
