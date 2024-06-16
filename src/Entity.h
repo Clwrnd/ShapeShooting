@@ -1,5 +1,8 @@
+#pragma once
+
 #include <string>
 #include "Component.h"
+#include<memory>
 
 class Entity
 {
@@ -21,8 +24,8 @@ public:
     std::shared_ptr<CInput> cInput;
 
     bool isActive() const;
-    size_t id() const;
-    std::string tag() const;
+    size_t getId() const;
+    std::string getTag() const;
     void destroy();        
     
 };

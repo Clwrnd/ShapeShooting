@@ -9,7 +9,7 @@ std::shared_ptr<Entity> EntityManager::addEntity (const std::string & tag){
 void EntityManager::update(){
     for (auto e: toAdd){
         entities.push_back(e);
-        entityMap[e->tag()].push_back(e);
+        entityMap[e -> tag()].push_back(e);
     }
     toAdd.clear(); 
 }

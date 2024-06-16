@@ -1,8 +1,7 @@
-#include<iostream>
-#include <string>
-#include <SFML/Graphics.hpp>
+#include "Game.h"
 
 int main()
 {
-    std::cout << "hey";
+    Game g;
+    g.run();
 }

@@ -1,3 +1,7 @@
+#pragma once
+
+
+
 #include "Vec2.h"
 #include <SFML/Graphics.hpp>
 
@@ -25,7 +29,7 @@ public:
         circle.setOutlineColor(outline);
         circle.setOutlineThickness(thickness);
         circle.setOrigin(radius, radius);
-    }
+    } 
 };
 
 class CCollision
