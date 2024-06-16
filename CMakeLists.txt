@@ -10,8 +10,10 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
+set(CPP src/Vec2.cpp src/main.cpp src/Game.cpp src/EntityManager.cpp src/Entity.cpp)
+set(H src/Vec2.h src/Game.h src/EntityManager.h src/Entity.h src/Component.h)
 
-add_executable(main src/main.cpp src/Game.cpp src/Component.h)
+add_executable(main ${CPP} ${H})
 
 
 target_link_libraries(main PRIVATE sfml-graphics)

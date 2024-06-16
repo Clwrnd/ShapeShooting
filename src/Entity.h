@@ -24,8 +24,8 @@ public:
     std::shared_ptr<CInput> cInput;
 
     bool isActive() const;
-    size_t getId() const;
-    std::string getTag() const;
+    const size_t getId() const;
+    const std::string & getTag() const;
     void destroy();        
     
 };
