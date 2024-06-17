@@ -1,10 +1,13 @@
 
-#include"Entity.h"
+#include "Entity.h"
 
-const std::string&  Entity::getTag() const {
-    std::string s(""); 
-    return s;
+const std::string &Entity::getTag() const
+{
+    return this->tag;
 }
 
-Entity::Entity(const size_t id_in,const std::string &tag_in){
+Entity::Entity(const size_t id_in, const std::string &tag_in)
+    :id(id_in),tag(tag_in)
+{
 }
+

@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include "Vec2.h"
 #include <SFML/Graphics.hpp>
 
@@ -24,12 +22,13 @@ public:
     sf::CircleShape circle;
     CShape(float radius, int points, const sf::Color &fill,
            const sf::Color &outline, float thickness)
+           : circle(radius,points)
     {
         circle.setFillColor(fill);
         circle.setOutlineColor(outline);
         circle.setOutlineThickness(thickness);
         circle.setOrigin(radius, radius);
-    } 
+    }
 };
 
 class CCollision
@@ -47,7 +46,7 @@ class CScore
 public:
     int score = 0;
     CScore(int s)
-    : score(s)
+        : score(s)
     {
     }
 };
@@ -56,9 +55,9 @@ class CLifespan
 {
 public:
     int remaining = 0;
-    int total=0;
+    int total = 0;
     CLifespan(int rm, int tl)
-    :remaining(rm), total(tl)
+        : remaining(rm), total(tl)
     {
     }
 };
@@ -71,6 +70,6 @@ public:
     bool left = false;
     bool right = false;
     bool shoot = false;
-    
-    CInput(){}
+
+    CInput() {}
 };

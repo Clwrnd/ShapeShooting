@@ -2,6 +2,7 @@
 
 int main()
 {
-    Game g;
+    std::string config("config.txt");
+    Game g(config);
     g.run();
 }

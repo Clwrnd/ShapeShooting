@@ -2,7 +2,7 @@
 
 #include <string>
 #include "Component.h"
-#include<memory>
+#include <memory>
 
 class Entity
 {
@@ -25,7 +25,6 @@ public:
 
     bool isActive() const;
     const size_t getId() const;
-    const std::string & getTag() const;
-    void destroy();        
-    
+    const std::string &getTag() const;
+    void destroy();
 };
