@@ -22,3 +22,8 @@ void EntityManager::update()
 EntityVector& EntityManager::getEntities(){
     return entities;
 }
+
+EntityVector& EntityManager::getEntities(const std::string & tag)
+{
+    return entityMap[tag];
+} 

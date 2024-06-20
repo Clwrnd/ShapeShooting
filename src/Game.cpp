@@ -1,4 +1,6 @@
 #include "Game.h"
+#include <cmath>
+#include <iostream>
 
 void Game::init(const std::string &config)
 {
@@ -12,12 +14,37 @@ void Game::setPaused(bool paused_in)
 
 void Game::sMovement()
 {
+    for (auto bullet : Mentities.getEntities("bullet"))
+    {
+        bullet-> cTransform  -> pos.x += bullet -> cTransform -> speed.x;
+        bullet -> cTransform -> pos.y += bullet -> cTransform -> speed.y;
+        bullet ->cShape ->circle.setFillColor(sf::Color(23,123,12,(static_cast<float>(bullet->cLifespan->remaining)/
+        bullet->cLifespan->total)*255
+        ) );
+        bullet->cLifespan->remaining-=1;
+    } 
+
+    // Player Movements
 
     if (player->cInput->up)
     {
-        player -> cTransform ->pos.y += player ->cTransform ->speed.y;
+        player->cTransform->pos.y -= player->cTransform->speed.y;
     }
-    
+
+    if (player->cInput->left)
+    {
+        player->cTransform->pos.x -= player->cTransform->speed.x;
+    }
+
+    if (player->cInput->right)
+    {
+        player->cTransform->pos.x += player->cTransform->speed.x;
+    }
+
+    if (player->cInput->down)
+    {
+        player->cTransform->pos.y += player->cTransform->speed.y;
+    }
 }
 
 void Game::sUserInput()
@@ -36,7 +63,7 @@ void Game::sUserInput()
         {
             if (event.mouseButton.button == sf::Mouse::Left)
             {
-                spwanBullet(player,Vec2{event.mouseButton.x,event.mouseButton.y});
+                spwanBullet(player, Vec2{event.mouseButton.x, event.mouseButton.y});
             }
         }
 
@@ -45,29 +72,43 @@ void Game::sUserInput()
             switch (event.key.code)
             {
             case sf::Keyboard::Z:
-                player ->cInput ->up = true;
+                player->cInput->up = true;
                 break;
-            
+            case sf::Keyboard::Q:
+                player->cInput->left = true;
+                break;
+            case sf::Keyboard::S:
+                player->cInput->down = true;
+                break;
+            case sf::Keyboard::D:
+                player->cInput->right = true;
+                break;
             default:
                 break;
             }
-
         }
 
-          if (event.type == sf::Event::KeyReleased)
+        if (event.type == sf::Event::KeyReleased)
         {
             switch (event.key.code)
             {
             case sf::Keyboard::Z:
-                player ->cInput ->up = false;
+                player->cInput->up = false;
                 break;
-            
+            case sf::Keyboard::Q:
+                player->cInput->left = false;
+                break;
+            case sf::Keyboard::S:
+                player->cInput->down = false;
+                break;
+            case sf::Keyboard::D:
+                player->cInput->right = false;
+                break;
+
             default:
                 break;
             }
-
         }
-
     }
 }
 
@@ -119,13 +160,17 @@ void Game::spwanSpecWeapon(std::shared_ptr<Entity> entity)
 {
 }
 
-void Game::spwanBullet(std::shared_ptr<Entity> Entity, const Vec2 &mousePos)
+void Game::spwanBullet(std::shared_ptr<Entity> player, const Vec2 &mousePos)
 {
     auto e = Mentities.addEntity("bullet");
-    e->cShape = std::make_shared<CShape>(5,1000, sf::Color::Red, sf::Color::Red, 1);
-    Vec2 pos{mousePos.x, mousePos.y};
-    Vec2 spe{0, 0};
+    e->cShape = std::make_shared<CShape>(15, 1000, sf::Color::Red, sf::Color::Red, 0);
+    Vec2 pos{player->cTransform->pos.x,player -> cTransform->pos.y};
+
+    float angle = std::atan2(mousePos.y-player->cTransform->pos.y,mousePos.x-player->cTransform->pos.x);
+
+    Vec2 spe{5*std::cos(angle), 5*std::sin(angle)};
     e->cTransform = std::make_shared<CTransform>(pos, spe, 2);
+    e->cLifespan = std::make_shared<CLifespan>(100,100);
 }
 
 Game::Game(std::string &config)
