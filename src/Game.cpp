@@ -63,7 +63,7 @@ void Game::sUserInput()
         {
             if (event.mouseButton.button == sf::Mouse::Left)
             {
-                spwanBullet(player, Vec2{event.mouseButton.x, event.mouseButton.y});
+                spwanBullet(player, Vec2{ static_cast<float> (event.mouseButton.x), static_cast<float> (event.mouseButton.y) });
             }
         }
 
@@ -114,6 +114,13 @@ void Game::sUserInput()
 
 void Game::sLifespan()
 {
+    for(auto e: Mentities.getEntities("bullet"))
+    {
+        if(e->cLifespan->remaining==0)
+        {
+            e->destroy();
+        }
+    }
 }
 
 void Game::sRender()
@@ -122,8 +129,11 @@ void Game::sRender()
 
     for (auto e : Mentities.getEntities())
     {
+        if(e->isActive())
+        {
         e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
         window.draw(e->cShape->circle);
+        }
     }
 
     window.display();
@@ -188,6 +198,7 @@ void Game::run()
         sCollision();
         sUserInput();
         sRender();
+        sLifespan();
         current_frame++;
     }
 }

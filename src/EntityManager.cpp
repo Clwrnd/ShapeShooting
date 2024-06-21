@@ -17,6 +17,14 @@ void EntityManager::update()
         entityMap[e->getTag()].push_back(e);
     }
     toAdd.clear();
+
+    auto it = std::remove_if(entities.begin(),entities.end(),[](std::shared_ptr<Entity> e){return ! e->isActive();} );
+    entities.erase(it,entities.end());
+    for (auto & [tag,entityV]:entityMap)
+    {
+        auto it = std::remove_if(entityV.begin(),entityV.end(),[](std::shared_ptr<Entity> e){return ! e->isActive();} );    
+        entityV.erase(it,entityV.end());
+    }
 }
 
 EntityVector& EntityManager::getEntities(){
