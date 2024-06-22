@@ -10,7 +10,7 @@ public:
     Vec2 speed = {0, 0};
     float ang = 0;
 
-    CTransform(Vec2 &pos_in, Vec2 &speed_in, float ang_in)
+    CTransform(const Vec2 &pos_in,const Vec2 &speed_in, float ang_in)
         : pos(pos_in), speed(speed_in), ang(ang_in)
     {
     }

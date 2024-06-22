@@ -30,7 +30,7 @@ class Game
     EnnemyConfig ennemy_config;
     BulletConfig bullet_config;
     int score = 0;
-    int current_frame;
+    int current_frame = 0;
     int lastTimeEnemySpwanded = 0;
     bool paused = false;
     bool running = true;
@@ -54,7 +54,7 @@ class Game
     void spwanSpecWeapon(std::shared_ptr<Entity>);
 
 public:
-    Game(std::string  & config);
+    Game(const std::string  & config);
 
     void run();
 };

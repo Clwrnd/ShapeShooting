@@ -14,15 +14,20 @@ void Game::setPaused(bool paused_in)
 
 void Game::sMovement()
 {
-    for (auto bullet : Mentities.getEntities("bullet"))
+    for (auto entity : Mentities.getEntities())
     {
-        bullet-> cTransform  -> pos.x += bullet -> cTransform -> speed.x;
-        bullet -> cTransform -> pos.y += bullet -> cTransform -> speed.y;
-        bullet ->cShape ->circle.setFillColor(sf::Color(23,123,12,(static_cast<float>(bullet->cLifespan->remaining)/
-        bullet->cLifespan->total)*255
-        ) );
-        bullet->cLifespan->remaining-=1;
-    } 
+        if (entity->getTag() != "player")
+        {
+            entity->cTransform->pos.x += entity->cTransform->speed.x;
+            entity->cTransform->pos.y += entity->cTransform->speed.y;
+            if (entity->getTag() == "bullet")
+            {
+        entity ->cShape ->circle.setFillColor(sf::Color(23,123,12,(static_cast<float>(entity->cLifespan->remaining)/
+        entity->cLifespan->total)*255
+        ));
+            }
+        }
+    }
 
     // Player Movements
 
@@ -63,7 +68,7 @@ void Game::sUserInput()
         {
             if (event.mouseButton.button == sf::Mouse::Left)
             {
-                spwanBullet(player, Vec2{ static_cast<float> (event.mouseButton.x), static_cast<float> (event.mouseButton.y) });
+                spwanBullet(player, Vec2{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)});
             }
         }
 
@@ -114,9 +119,10 @@ void Game::sUserInput()
 
 void Game::sLifespan()
 {
-    for(auto e: Mentities.getEntities("bullet"))
+    for (auto e : Mentities.getEntities("bullet"))
     {
-        if(e->cLifespan->remaining==0)
+        e->cLifespan->remaining--;
+        if (e->cLifespan->remaining == 0)
         {
             e->destroy();
         }
@@ -129,10 +135,10 @@ void Game::sRender()
 
     for (auto e : Mentities.getEntities())
     {
-        if(e->isActive())
+        if (e->isActive())
         {
-        e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
-        window.draw(e->cShape->circle);
+            e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+            window.draw(e->cShape->circle);
         }
     }
 
@@ -141,6 +147,11 @@ void Game::sRender()
 
 void Game::sEnemySpawner()
 {
+    if (current_frame - lastTimeEnemySpwanded == 120)
+    {
+        spawnEnemy();
+        lastTimeEnemySpwanded = current_frame;
+    }
 }
 
 void Game::sCollision()
@@ -152,14 +163,16 @@ void Game::spawnPlayer()
     auto e = Mentities.addEntity("player");
     e->cInput = std::make_shared<CInput>();
     e->cShape = std::make_shared<CShape>(50, 3, sf::Color::Blue, sf::Color::Green, 7);
-    Vec2 pos{400, 400};
-    Vec2 spe{3, 3};
-    e->cTransform = std::make_shared<CTransform>(pos, spe, 2);
+    e->cTransform = std::make_shared<CTransform>(Vec2{400, 400}, Vec2{3, 3}, 2);
     player = e;
 }
 
 void Game::spawnEnemy()
 {
+    auto ennemy = Mentities.addEntity("ennemy");
+    ennemy->cShape = std::make_shared<CShape>(20, 6, sf::Color::White, sf::Color::Yellow, 3);
+    ennemy->cTransform = std::make_shared<CTransform>(Vec2{ static_cast<float> ( rand() % 900 + 30 ),static_cast<float> (
+     rand() % 900 + 70 )}, Vec2{3, 3}, 2);
 }
 
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
@@ -174,16 +187,16 @@ void Game::spwanBullet(std::shared_ptr<Entity> player, const Vec2 &mousePos)
 {
     auto e = Mentities.addEntity("bullet");
     e->cShape = std::make_shared<CShape>(15, 1000, sf::Color::Red, sf::Color::Red, 0);
-    Vec2 pos{player->cTransform->pos.x,player -> cTransform->pos.y};
+    Vec2 pos{player->cTransform->pos.x, player->cTransform->pos.y};
 
-    float angle = std::atan2(mousePos.y-player->cTransform->pos.y,mousePos.x-player->cTransform->pos.x);
+    float angle = std::atan2(mousePos.y - player->cTransform->pos.y, mousePos.x - player->cTransform->pos.x);
 
-    Vec2 spe{5*std::cos(angle), 5*std::sin(angle)};
+    Vec2 spe{5 * std::cos(angle), 5 * std::sin(angle)};
     e->cTransform = std::make_shared<CTransform>(pos, spe, 2);
-    e->cLifespan = std::make_shared<CLifespan>(100,100);
+    e->cLifespan = std::make_shared<CLifespan>(100, 100);
 }
 
-Game::Game(std::string &config)
+Game::Game(const std::string &config)
 {
     init(config);
 }
