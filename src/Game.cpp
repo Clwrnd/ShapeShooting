@@ -23,7 +23,19 @@ void Game::sMovement()
             if (entity->getTag() == "bullet")
             {
                 entity->cShape->circle.setFillColor(sf::Color(23, 123, 12, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
+                entity->cShape->circle.setOutlineColor(sf::Color(23, 123, 12, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
+
             }
+            if(entity->getTag() == "smallEnnemy")
+            {
+               entity->cShape->circle.setFillColor(sf::Color(255,255, 255, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
+               entity->cShape->circle.setOutlineColor(sf::Color(255,255, 0, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
+            }
+            if (entity->getTag() == "Enemmy")
+            {
+                
+            }
+            
         }
     }
 
@@ -118,14 +130,17 @@ void Game::sUserInput()
 
 void Game::sLifespan()
 {
-    for (auto e : Mentities.getEntities("bullet"))
+    for (auto e : Mentities.getEntities())
     {
+        if(e->getTag()=="bullet" || e->getTag()=="smallEnnemy")
+        {
         e->cLifespan->remaining--;
         if (e->cLifespan->remaining == 0)
         {
             e->destroy();
         }
-    }
+        }
+    } 
 }
 
 void Game::sRender()
@@ -153,7 +168,8 @@ void Game::sEnemySpawner()
 
 void Game::sCollision()
 {
-    for (auto bullet : Mentities.getEntities("bullet")){
+    for (auto bullet : Mentities.getEntities("bullet"))
+    {
         for (auto ennemy : Mentities.getEntities("ennemy"))
         {
             if (bullet->cTransform->pos.dist(ennemy->cTransform->pos)<43)
@@ -162,10 +178,43 @@ void Game::sCollision()
                 bullet->destroy();
                 ennemy->destroy();
             }
+           
+        }
+
+        for (auto ennemy : Mentities.getEntities("smallEnnemy"))
+        {
+            if (bullet->cTransform->pos.dist(ennemy->cTransform->pos)<25)
+            {
+                bullet->destroy();
+                ennemy->destroy();
+            }
             
         }
     }
+
+    for (auto ennemy : Mentities.getEntities("ennemy"))
+    {
+        if (player->cTransform->pos.dist(ennemy->cTransform->pos) < 65)
+        {
+            spawnSmallEnemies(ennemy);
+            ennemy->destroy();
+            player->cTransform->pos.x = window.getSize().x / 2;
+            player->cTransform->pos.y = window.getSize().y / 2;
+        }
+    }
+
+    for (auto ennemy : Mentities.getEntities("smallEnnemy"))
+    {
+        if (player->cTransform->pos.dist(ennemy->cTransform->pos) < 65)
+        {
+            ennemy->destroy();
+            player->cTransform->pos.x = window.getSize().x / 2;
+            player->cTransform->pos.y = window.getSize().y / 2;
+        }
+    }
+
 }
+
 
 void Game::spawnPlayer()
 {
@@ -198,6 +247,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
         smallE->cTransform = std::make_shared<CTransform>(Vec2{entity->cTransform->pos.x,entity->cTransform->pos.y}
                 ,Vec2{ static_cast<float> ( 5*std::cos(2*M_PI/6*i) ) , static_cast<float> (
                     5*std::sin(2*M_PI/6*i) )},2);
+        smallE->cLifespan = std::make_shared<CLifespan>(100,100);
     }
     
 }
