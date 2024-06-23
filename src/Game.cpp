@@ -22,31 +22,30 @@ void Game::sMovement()
             entity->cTransform->pos.y += entity->cTransform->speed.y;
             if (entity->getTag() == "bullet")
             {
-        entity ->cShape ->circle.setFillColor(sf::Color(23,123,12,(static_cast<float>(entity->cLifespan->remaining)/
-        entity->cLifespan->total)*255
-        ));
+                entity->cShape->circle.setFillColor(sf::Color(23, 123, 12, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
             }
         }
     }
 
     // Player Movements
+    float shapeBorder = player->cShape->circle.getRadius() + player->cShape->circle.getOutlineThickness();
 
-    if (player->cInput->up)
+    if (player->cInput->up && player->cTransform->pos.y - player->cTransform->speed.y - shapeBorder > 0)
     {
         player->cTransform->pos.y -= player->cTransform->speed.y;
     }
 
-    if (player->cInput->left)
+    if (player->cInput->left && player->cTransform->pos.x - player->cTransform->speed.x - shapeBorder > 0)
     {
         player->cTransform->pos.x -= player->cTransform->speed.x;
     }
 
-    if (player->cInput->right)
+    if (player->cInput->right && player->cTransform->pos.x + player->cTransform->speed.x + shapeBorder < window.getSize().x)
     {
         player->cTransform->pos.x += player->cTransform->speed.x;
     }
 
-    if (player->cInput->down)
+    if (player->cInput->down && player->cTransform->pos.y + player->cTransform->speed.y + shapeBorder < window.getSize().y)
     {
         player->cTransform->pos.y += player->cTransform->speed.y;
     }
@@ -135,11 +134,9 @@ void Game::sRender()
 
     for (auto e : Mentities.getEntities())
     {
-        if (e->isActive())
-        {
-            e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
-            window.draw(e->cShape->circle);
-        }
+        e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+        e->cShape->circle.rotate(e->cTransform->ang);
+        window.draw(e->cShape->circle);
     }
 
     window.display();
@@ -156,14 +153,26 @@ void Game::sEnemySpawner()
 
 void Game::sCollision()
 {
+    for (auto bullet : Mentities.getEntities("bullet")){
+        for (auto ennemy : Mentities.getEntities("ennemy"))
+        {
+            if (bullet->cTransform->pos.dist(ennemy->cTransform->pos)<43)
+            {
+                spawnSmallEnemies(ennemy);
+                bullet->destroy();
+                ennemy->destroy();
+            }
+            
+        }
+    }
 }
 
 void Game::spawnPlayer()
 {
     auto e = Mentities.addEntity("player");
     e->cInput = std::make_shared<CInput>();
-    e->cShape = std::make_shared<CShape>(50, 3, sf::Color::Blue, sf::Color::Green, 7);
-    e->cTransform = std::make_shared<CTransform>(Vec2{400, 400}, Vec2{3, 3}, 2);
+    e->cShape = std::make_shared<CShape>(40, 3, sf::Color::Blue, sf::Color::Green, 7);
+    e->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(window.getSize().x / 2), static_cast<float>(window.getSize().y / 2)}, Vec2{3, 3}, 2);
     player = e;
 }
 
@@ -171,12 +180,26 @@ void Game::spawnEnemy()
 {
     auto ennemy = Mentities.addEntity("ennemy");
     ennemy->cShape = std::make_shared<CShape>(20, 6, sf::Color::White, sf::Color::Yellow, 3);
-    ennemy->cTransform = std::make_shared<CTransform>(Vec2{ static_cast<float> ( rand() % 900 + 30 ),static_cast<float> (
-     rand() % 900 + 70 )}, Vec2{3, 3}, 2);
+    ennemy->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(rand() % 800 + 30), static_cast<float>(
+                                                                                                      rand() % 800 + 70)},
+                                                      Vec2{static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % 1)),
+                                                           static_cast<float>(std::pow(-1, static_cast<double>(rand() % 2)) * (rand() % 1))},
+                                                      2);
 }
 
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 {
+    int nPoint =entity->cShape->circle.getPointCount();
+    for (size_t i = 1; i <=nPoint ; i++)
+    {
+        auto smallE = Mentities.addEntity("smallEnnemy");
+        smallE->cShape = std::make_shared<CShape>(7,6,sf::Color::White, sf::Color::Yellow, 3); 
+        
+        smallE->cTransform = std::make_shared<CTransform>(Vec2{entity->cTransform->pos.x,entity->cTransform->pos.y}
+                ,Vec2{ static_cast<float> ( 5*std::cos(2*M_PI/6*i) ) , static_cast<float> (
+                    5*std::sin(2*M_PI/6*i) )},2);
+    }
+    
 }
 
 void Game::spwanSpecWeapon(std::shared_ptr<Entity> entity)
@@ -186,7 +209,7 @@ void Game::spwanSpecWeapon(std::shared_ptr<Entity> entity)
 void Game::spwanBullet(std::shared_ptr<Entity> player, const Vec2 &mousePos)
 {
     auto e = Mentities.addEntity("bullet");
-    e->cShape = std::make_shared<CShape>(15, 1000, sf::Color::Red, sf::Color::Red, 0);
+    e->cShape = std::make_shared<CShape>(15, 7, sf::Color::Red, sf::Color::Red, 0);
     Vec2 pos{player->cTransform->pos.x, player->cTransform->pos.y};
 
     float angle = std::atan2(mousePos.y - player->cTransform->pos.y, mousePos.x - player->cTransform->pos.x);
