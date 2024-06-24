@@ -4,7 +4,7 @@
 
 void Game::init(const std::string &config)
 {
-    window.create(sf::VideoMode({1280, 860}), "Assignement 2");
+    window.create(sf::VideoMode({1480, 1000}), "Assignement 2");
     window.setFramerateLimit(60);
 }
 
@@ -18,24 +18,37 @@ void Game::sMovement()
     {
         if (entity->getTag() != "player")
         {
-            entity->cTransform->pos.x += entity->cTransform->speed.x;
-            entity->cTransform->pos.y += entity->cTransform->speed.y;
             if (entity->getTag() == "bullet")
             {
                 entity->cShape->circle.setFillColor(sf::Color(23, 123, 12, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
                 entity->cShape->circle.setOutlineColor(sf::Color(23, 123, 12, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
-
             }
             if(entity->getTag() == "smallEnnemy")
             {
                entity->cShape->circle.setFillColor(sf::Color(255,255, 255, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
                entity->cShape->circle.setOutlineColor(sf::Color(255,255, 0, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
             }
-            if (entity->getTag() == "Enemmy")
+            if (entity->getTag() == "ennemy" || entity->getTag() =="smallEnnemy")
             {
-                
+                if (entity->cShape->circle.getGlobalBounds().left + entity->cTransform->speed.x < 0)
+                {
+                    entity->cTransform->speed.x= -entity->cTransform->speed.x;
+                }
+                if (entity->cShape->circle.getGlobalBounds().left + entity->cShape->circle.getGlobalBounds().width + entity->cTransform->speed.x  > window.getSize().x)
+                {
+                    entity->cTransform->speed.x=-entity->cTransform->speed.x;
+                }
+                if (entity->cShape->circle.getGlobalBounds().top + entity->cTransform->speed.y  < 0)
+                {
+                    entity->cTransform->speed.y=-entity->cTransform->speed.y;
+                }
+                if (entity->cShape->circle.getGlobalBounds().top + entity->cShape->circle.getGlobalBounds().height + entity->cTransform->speed.x  > window.getSize().y)
+                {
+                    entity->cTransform->speed.y=-entity->cTransform->speed.y;
+                }
             }
-            
+            entity->cTransform->pos.x += entity->cTransform->speed.x;
+            entity->cTransform->pos.y += entity->cTransform->speed.y;
         }
     }
 
@@ -231,8 +244,8 @@ void Game::spawnEnemy()
     ennemy->cShape = std::make_shared<CShape>(20, 6, sf::Color::White, sf::Color::Yellow, 3);
     ennemy->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(rand() % 800 + 30), static_cast<float>(
                                                                                                       rand() % 800 + 70)},
-                                                      Vec2{static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % 1)),
-                                                           static_cast<float>(std::pow(-1, static_cast<double>(rand() % 2)) * (rand() % 1))},
+                                                      Vec2{static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % 6 +3)),
+                                                           static_cast<float>(std::pow(-1, static_cast<double>(rand() % 2 +3    )) * (rand() % 6))},
                                                       2);
 }
 
