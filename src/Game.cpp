@@ -6,6 +6,8 @@ void Game::init(const std::string &config)
 {
     window.create(sf::VideoMode({1480, 1000}), "Assignement 2");
     window.setFramerateLimit(60);
+
+    font.loadFromFile("C:/Users/cidmo/Documents/CS_PROJECT/LearnCpp/A2/Assignement_2/src/youngtechs.ttf"); 
 }
 
 void Game::setPaused(bool paused_in)
@@ -247,6 +249,7 @@ void Game::spawnEnemy()
                                                       Vec2{static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % 6 +3)),
                                                            static_cast<float>(std::pow(-1, static_cast<double>(rand() % 2 +3    )) * (rand() % 6))},
                                                       2);
+    ennemy->cScore=std::make_shared<CScore>(100);
 }
 
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
