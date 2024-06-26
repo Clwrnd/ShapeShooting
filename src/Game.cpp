@@ -8,10 +8,14 @@ void Game::init(const std::string &config)
     window.setFramerateLimit(60);
 
     font.loadFromFile("C:/Users/cidmo/Documents/CS_PROJECT/LearnCpp/A2/Assignement_2/src/youngtechs.ttf"); 
+    score_text.setFont(font);
+    score_text.setString(std::to_string (score) );
+    score_text.setPosition({0,0});
 }
 
-void Game::setPaused(bool paused_in)
+void Game::setPaused()
 {
+    paused= !paused;
 }
 
 void Game::sMovement()
@@ -114,6 +118,8 @@ void Game::sUserInput()
             case sf::Keyboard::D:
                 player->cInput->right = true;
                 break;
+            case sf::Keyboard::P:
+                setPaused();
             default:
                 break;
             }
@@ -168,6 +174,7 @@ void Game::sRender()
         e->cShape->circle.rotate(e->cTransform->ang);
         window.draw(e->cShape->circle);
     }
+    window.draw(score_text);
 
     window.display();
 }
@@ -192,6 +199,8 @@ void Game::sCollision()
                 spawnSmallEnemies(ennemy);
                 bullet->destroy();
                 ennemy->destroy();
+                score += ennemy->cScore->score;
+                score_text.setString(std::to_string(score));            
             }
            
         }
@@ -202,6 +211,8 @@ void Game::sCollision()
             {
                 bullet->destroy();
                 ennemy->destroy();
+                score += ennemy->cScore->score;
+                score_text.setString(std::to_string(score));    
             }
             
         }
@@ -249,7 +260,7 @@ void Game::spawnEnemy()
                                                       Vec2{static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % 6 +3)),
                                                            static_cast<float>(std::pow(-1, static_cast<double>(rand() % 2 +3    )) * (rand() % 6))},
                                                       2);
-    ennemy->cScore=std::make_shared<CScore>(100);
+    ennemy->cScore=std::make_shared<CScore>(100*ennemy->cShape->circle.getPointCount());
 }
 
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
@@ -264,6 +275,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
                 ,Vec2{ static_cast<float> ( 5*std::cos(2*M_PI/6*i) ) , static_cast<float> (
                     5*std::sin(2*M_PI/6*i) )},2);
         smallE->cLifespan = std::make_shared<CLifespan>(100,100);
+        smallE->cScore = std::make_shared<CScore>(2*entity->cScore->score);
     }
     
 }
@@ -294,6 +306,8 @@ void Game::run()
     spawnPlayer();
     while (running)
     {
+        if(!paused)
+        {
         Mentities.update();
         sEnemySpawner();
         sMovement();
@@ -302,5 +316,11 @@ void Game::run()
         sRender();
         sLifespan();
         current_frame++;
+        } else
+        {
+            sUserInput();
+            sRender();
+        }
+
     }
 }
