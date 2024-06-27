@@ -34,6 +34,10 @@ void Game::sMovement()
                entity->cShape->circle.setFillColor(sf::Color(255,255, 255, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
                entity->cShape->circle.setOutlineColor(sf::Color(255,255, 0, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
             }
+            if(entity->getTag() == "mvPlayer")
+            {
+               entity->cShape->circle.setFillColor(sf::Color(0,255,0,(static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
+            }
             if (entity->getTag() == "ennemy" || entity->getTag() =="smallEnnemy")
             {
                 if (entity->cShape->circle.getGlobalBounds().left + entity->cTransform->speed.x < 0)
@@ -62,7 +66,7 @@ void Game::sMovement()
     float shapeBorder = player->cShape->circle.getRadius() + player->cShape->circle.getOutlineThickness();
 
     if (player->cInput->up && player->cTransform->pos.y - player->cTransform->speed.y - shapeBorder > 0)
-    {
+    {        
         player->cTransform->pos.y -= player->cTransform->speed.y;
     }
 
@@ -79,6 +83,15 @@ void Game::sMovement()
     if (player->cInput->down && player->cTransform->pos.y + player->cTransform->speed.y + shapeBorder < window.getSize().y)
     {
         player->cTransform->pos.y += player->cTransform->speed.y;
+    }
+
+    if(player->cInput->down || player->cInput->up || player->cInput->right || player->cInput->left)
+    {
+           auto effect = Mentities.addEntity("mvPlayer");
+           effect->cShape=std::make_shared<CShape>(5,100, sf::Color::Blue,sf::Color::White, 0);
+           effect->cTransform = std::make_shared<CTransform>(Vec2{player->cTransform->pos.x,
+            player->cTransform->pos.y},Vec2{0,0},10);
+        effect->cLifespan=std::make_shared<CLifespan>(20,20);    
     }
 }
 
@@ -153,7 +166,7 @@ void Game::sLifespan()
 {
     for (auto e : Mentities.getEntities())
     {
-        if(e->getTag()=="bullet" || e->getTag()=="smallEnnemy")
+        if(e->getTag()=="bullet" || e->getTag()=="smallEnnemy" || e->getTag()=="mvPlayer")
         {
         e->cLifespan->remaining--;
         if (e->cLifespan->remaining == 0)
@@ -246,7 +259,7 @@ void Game::spawnPlayer()
 {
     auto e = Mentities.addEntity("player");
     e->cInput = std::make_shared<CInput>();
-    e->cShape = std::make_shared<CShape>(40, 3, sf::Color::Blue, sf::Color::Green, 7);
+    e->cShape = std::make_shared<CShape>(40, 5, sf::Color::Blue, sf::Color::Green, 7);
     e->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(window.getSize().x / 2), static_cast<float>(window.getSize().y / 2)}, Vec2{3, 3}, 2);
     player = e;
 }
