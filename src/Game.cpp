@@ -88,7 +88,7 @@ void Game::sMovement()
     if(player->cInput->down || player->cInput->up || player->cInput->right || player->cInput->left)
     {
            auto effect = Mentities.addEntity("mvPlayer");
-           effect->cShape=std::make_shared<CShape>(5,100, sf::Color::Blue,sf::Color::White, 0);
+           effect->cShape=std::make_shared<CShape>(7,10, sf::Color::Blue,sf::Color::White, 0);
            effect->cTransform = std::make_shared<CTransform>(Vec2{player->cTransform->pos.x,
             player->cTransform->pos.y},Vec2{0,0},10);
         effect->cLifespan=std::make_shared<CLifespan>(20,20);    
