@@ -11,8 +11,7 @@ struct PlayerConfig
 };
 struct EnnemyConfig
 {
-    int SR, CR, OR, OG, OB, OT, VMIN, VMAX, L, SI;
-    float SMIN, SMAX;
+    int SR, CR, OR, OG, OB, OT, VMIN, VMAX, L, SI ,SMIN, SMAX;
 };
 struct BulletConfig
 {

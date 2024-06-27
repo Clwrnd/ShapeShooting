@@ -1,16 +1,47 @@
 #include "Game.h"
 #include <cmath>
 #include <iostream>
+#include <fstream>
 
 void Game::init(const std::string &config)
 {
-    window.create(sf::VideoMode({1480, 1000}), "Assignement 2");
-    window.setFramerateLimit(60);
+    std::ifstream configFile;
+    configFile.open(config);
+    std::string temp,fontPath;
+    int w,h,fr,fscr,Rfont,Gfont,Bfont,fs;
 
-    font.loadFromFile("C:/Users/cidmo/Documents/CS_PROJECT/LearnCpp/A2/Assignement_2/src/youngtechs.ttf"); 
+    // Read file
+    configFile>>temp>>w>>h>>fr>>fscr>>temp>>fontPath>>fs>>Rfont
+    >>Gfont>>Bfont;
+
+    if(fscr)
+    {
+        window.create(sf::VideoMode({w, h}), "Assignement 2",sf::Style::Fullscreen);
+    } else
+    {
+        window.create(sf::VideoMode({w, h}), "Assignement 2");
+    }
+    window.setFramerateLimit(fr);
+
+    font.loadFromFile(fontPath); 
+
     score_text.setFont(font);
     score_text.setString(std::to_string (score) );
-    score_text.setPosition({0,0});
+    score_text.setPosition({10,0});
+    score_text.setCharacterSize(fs);
+    score_text.setColor(sf::Color ( Rfont,Gfont,Bfont) );
+
+    configFile >> temp >> player_config.SR>>player_config.CR>>player_config.S>>
+    player_config.FR>>player_config.FG>>player_config.FB>>player_config.OR>>player_config.OG
+    >>player_config.OB>>player_config.OT>>player_config.V;
+
+    configFile >> temp >> ennemy_config.SR >> ennemy_config.CR >> ennemy_config.SMIN >> ennemy_config.SMAX
+    >> ennemy_config.OR>>ennemy_config.OG>>ennemy_config.OB >> ennemy_config.VMIN >> ennemy_config.VMAX>> 
+    ennemy_config.OT>>ennemy_config.L >> ennemy_config.SI;
+
+
+    std::cout<< ennemy_config.SI;
+
 }
 
 void Game::setPaused()
@@ -65,6 +96,11 @@ void Game::sMovement()
     // Player Movements
     float shapeBorder = player->cShape->circle.getRadius() + player->cShape->circle.getOutlineThickness();
 
+    if( (player->cInput->up ||player->cInput->down ) && (player->cInput->left || player->cInput->right)  )
+    {
+        player->cTransform->speed *= (std::sqrt(2)/2);
+    }
+
     if (player->cInput->up && player->cTransform->pos.y - player->cTransform->speed.y - shapeBorder > 0)
     {        
         player->cTransform->pos.y -= player->cTransform->speed.y;
@@ -74,7 +110,6 @@ void Game::sMovement()
     {
         player->cTransform->pos.x -= player->cTransform->speed.x;
     }
-
     if (player->cInput->right && player->cTransform->pos.x + player->cTransform->speed.x + shapeBorder < window.getSize().x)
     {
         player->cTransform->pos.x += player->cTransform->speed.x;
@@ -84,6 +119,13 @@ void Game::sMovement()
     {
         player->cTransform->pos.y += player->cTransform->speed.y;
     }
+
+    if( (player->cInput->up ||player->cInput->down ) && (player->cInput->left || player->cInput->right)  )
+    {
+        player->cTransform->speed /= (std::sqrt(2)/2);
+    }
+
+    
 
     if(player->cInput->down || player->cInput->up || player->cInput->right || player->cInput->left)
     {
@@ -194,7 +236,7 @@ void Game::sRender()
 
 void Game::sEnemySpawner()
 {
-    if (current_frame - lastTimeEnemySpwanded == 120)
+    if (current_frame - lastTimeEnemySpwanded == ennemy_config.SI)
     {
         spawnEnemy();
         lastTimeEnemySpwanded = current_frame;
@@ -259,19 +301,23 @@ void Game::spawnPlayer()
 {
     auto e = Mentities.addEntity("player");
     e->cInput = std::make_shared<CInput>();
-    e->cShape = std::make_shared<CShape>(40, 5, sf::Color::Blue, sf::Color::Green, 7);
-    e->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(window.getSize().x / 2), static_cast<float>(window.getSize().y / 2)}, Vec2{3, 3}, 2);
+    e->cShape = std::make_shared<CShape>(player_config.SR, player_config.V, sf::Color(player_config.FR,player_config.FG,player_config.FB),
+     sf::Color(player_config.OR,player_config.OG,player_config.OB), player_config.OT);
+    e->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(window.getSize().x / 2), static_cast<float>(window.getSize().y / 2)}, Vec2{player_config.S, player_config.S}, 2);
     player = e;
 }
 
 void Game::spawnEnemy()
 {
     auto ennemy = Mentities.addEntity("ennemy");
-    ennemy->cShape = std::make_shared<CShape>(20, 6, sf::Color::White, sf::Color::Yellow, 3);
-    ennemy->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(rand() % 800 + 30), static_cast<float>(
-                                                                                                      rand() % 800 + 70)},
-                                                      Vec2{static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % 6 +3)),
-                                                           static_cast<float>(std::pow(-1, static_cast<double>(rand() % 2 +3    )) * (rand() % 6))},
+    ennemy->cShape = std::make_shared<CShape>(ennemy_config.SR, rand() % (ennemy_config.VMAX - ennemy_config.VMIN +1) + ennemy_config.VMIN , 
+    sf::Color(rand() % 256,rand() % 256,rand() % 256), sf::Color(ennemy_config.OR,ennemy_config.OG,ennemy_config.OB), ennemy_config.OT);
+    ennemy->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(rand() % (window.getSize().x-ennemy_config.CR) + ennemy_config.CR), static_cast<float>
+                                                                            (rand() % (window.getSize().y-ennemy_config.CR) + ennemy_config.CR)},
+                                                      Vec2{static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % (ennemy_config.SMAX - 
+                                                      ennemy_config.SMIN +1) + ennemy_config.SMIN)),
+                                                           static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % (ennemy_config.SMAX - 
+                                                      ennemy_config.SMIN +1) + ennemy_config.SMIN))},
                                                       2);
     ennemy->cScore=std::make_shared<CScore>(100*ennemy->cShape->circle.getPointCount());
 }
@@ -287,7 +333,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
         smallE->cTransform = std::make_shared<CTransform>(Vec2{entity->cTransform->pos.x,entity->cTransform->pos.y}
                 ,Vec2{ static_cast<float> ( 5*std::cos(2*M_PI/6*i) ) , static_cast<float> (
                     5*std::sin(2*M_PI/6*i) )},2);
-        smallE->cLifespan = std::make_shared<CLifespan>(100,100);
+        smallE->cLifespan = std::make_shared<CLifespan>(ennemy_config.L,ennemy_config.L);
         smallE->cScore = std::make_shared<CScore>(2*entity->cScore->score);
     }
     
