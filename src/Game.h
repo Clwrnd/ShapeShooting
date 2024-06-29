@@ -6,7 +6,7 @@
 
 struct PlayerConfig
 {
-    int SR, CR, FR, FG, FB, OR, OG, OB, OT, V;
+    int SR, CR, FR, FG, FB, OR, OG, OB, OT, V,MR,MG,MB,MOR,MOG,MOB;
     float S;
 };
 struct EnnemyConfig

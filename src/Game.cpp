@@ -32,7 +32,8 @@ void Game::init(const std::string &config)
     score_text.setColor(sf::Color(Rfont, Gfont, Bfont));
 
     configFile >> temp >> player_config.SR >> player_config.CR >> player_config.S >>
-        player_config.FR >> player_config.FG >> player_config.FB >> player_config.OR >> player_config.OG >> player_config.OB >> player_config.OT >> player_config.V;
+        player_config.FR >> player_config.FG >> player_config.FB >> player_config.OR >> player_config.OG >> player_config.OB >> player_config.OT >> player_config.V >> player_config.MR>> player_config.MG>> player_config.MB
+        >> player_config.MOR>> player_config.MOG>> player_config.MOB;
 
     configFile >> temp >> ennemy_config.SR >> ennemy_config.CR >> ennemy_config.SMIN >> ennemy_config.SMAX >> ennemy_config.OR >> ennemy_config.OG >> ennemy_config.OB >> ennemy_config.VMIN >> ennemy_config.VMAX >>
         ennemy_config.OT >> ennemy_config.L >> ennemy_config.SI;
@@ -66,7 +67,7 @@ void Game::sMovement()
             }
             if (entity->getTag() == "mvPlayer")
             {
-                entity->cShape->circle.setFillColor(sf::Color(0, 255, 0, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
+                entity->cShape->circle.setFillColor(sf::Color(player_config.MR, player_config.MG, player_config.MB, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
             }
             if (entity->getTag() == "ennemy" || entity->getTag() == "smallEnnemy")
             {
@@ -127,10 +128,10 @@ void Game::sMovement()
     if (player->cInput->down || player->cInput->up || player->cInput->right || player->cInput->left)
     {
         auto effect = Mentities.addEntity("mvPlayer");
-        effect->cShape = std::make_shared<CShape>(7, 10, sf::Color::Blue, sf::Color::White, 0);
+        effect->cShape = std::make_shared<CShape>(7, 10, sf::Color(player_config.MR, player_config.MG, player_config.MB), sf::Color(player_config.MOR, player_config.MOG, player_config.MOB), 1);
         effect->cTransform = std::make_shared<CTransform>(Vec2{player->cTransform->pos.x,
                                                                player->cTransform->pos.y},
-                                                          Vec2{0, 0}, 10);
+                                                          Vec2{0, 0}, 20);
         effect->cLifespan = std::make_shared<CLifespan>(20, 20);
     }
 }
@@ -247,7 +248,7 @@ void Game::sCollision()
     {
         for (auto ennemy : Mentities.getEntities("ennemy"))
         {
-            if (bullet->cTransform->pos.dist(ennemy->cTransform->pos) < 43)
+            if (bullet->cTransform->pos.dist(ennemy->cTransform->pos) < bullet_config.CR+ennemy_config.CR)
             {
                 spawnSmallEnemies(ennemy);
                 bullet->destroy();
@@ -259,7 +260,7 @@ void Game::sCollision()
 
         for (auto ennemy : Mentities.getEntities("smallEnnemy"))
         {
-            if (bullet->cTransform->pos.dist(ennemy->cTransform->pos) < 25)
+            if (bullet->cTransform->pos.dist(ennemy->cTransform->pos) < bullet_config.CR+ennemy_config.CR)
             {
                 bullet->destroy();
                 ennemy->destroy();
@@ -271,22 +272,26 @@ void Game::sCollision()
 
     for (auto ennemy : Mentities.getEntities("ennemy"))
     {
-        if (player->cTransform->pos.dist(ennemy->cTransform->pos) < 65)
+        if (player->cTransform->pos.dist(ennemy->cTransform->pos) < player_config.CR+ennemy_config.CR)
         {
             spawnSmallEnemies(ennemy);
             ennemy->destroy();
             player->cTransform->pos.x = window.getSize().x / 2;
             player->cTransform->pos.y = window.getSize().y / 2;
+            score=0;
+            score_text.setString(std::to_string(score));
         }
     }
 
     for (auto ennemy : Mentities.getEntities("smallEnnemy"))
     {
-        if (player->cTransform->pos.dist(ennemy->cTransform->pos) < 65)
+        if (player->cTransform->pos.dist(ennemy->cTransform->pos) <  player_config.CR+ennemy_config.CR)
         {
             ennemy->destroy();
             player->cTransform->pos.x = window.getSize().x / 2;
             player->cTransform->pos.y = window.getSize().y / 2;
+            score=0;
+            score_text.setString(std::to_string(score));
         }
     }
 }
@@ -306,7 +311,9 @@ void Game::spawnEnemy()
     auto ennemy = Mentities.addEntity("ennemy");
     ennemy->cShape = std::make_shared<CShape>(ennemy_config.SR, rand() % (ennemy_config.VMAX - ennemy_config.VMIN + 1) + ennemy_config.VMIN,
                                               sf::Color(rand() % 256, rand() % 256, rand() % 256), sf::Color(ennemy_config.OR, ennemy_config.OG, ennemy_config.OB), ennemy_config.OT);
-    ennemy->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(rand() % (window.getSize().x - ennemy_config.CR) + ennemy_config.CR), static_cast<float>(rand() % (window.getSize().y - ennemy_config.CR) + ennemy_config.CR)},
+    int borderY = ennemy->cShape->circle.getRadius()+ ennemy->cShape->circle.getOutlineThickness() ;
+    int borderX = ennemy->cShape->circle.getLocalBounds().width;
+    ennemy->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(rand() % (window.getSize().x - borderY) + borderY), static_cast<float>(rand() % (window.getSize().y - borderY) + borderY)},
                                                       Vec2{static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % (ennemy_config.SMAX -
                                                                                                                       ennemy_config.SMIN + 1) +
                                                                                                             ennemy_config.SMIN)),
@@ -323,9 +330,9 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
     for (size_t i = 1; i <= nPoint; i++)
     {
         auto smallE = Mentities.addEntity("smallEnnemy");
-        smallE->cShape = std::make_shared<CShape>(14, entity->cShape->circle.getPointCount(), entity->cShape->circle.getFillColor(), entity->cShape->circle.getOutlineColor(), 3);
+        smallE->cShape = std::make_shared<CShape>(18, entity->cShape->circle.getPointCount(), entity->cShape->circle.getFillColor(), entity->cShape->circle.getOutlineColor(), 3);
 
-        smallE->cTransform = std::make_shared<CTransform>(Vec2{entity->cTransform->pos.x, entity->cTransform->pos.y}, Vec2{static_cast<float>(5 * std::cos(2 * M_PI / entity->cShape->circle.getPointCount() * i)), static_cast<float>(5 * std::sin(2 * M_PI / entity->cShape->circle.getPointCount() * i))}, 2);
+        smallE->cTransform = std::make_shared<CTransform>(Vec2{entity->cTransform->pos.x, entity->cTransform->pos.y}, Vec2{static_cast<float>( std::cos(2 * M_PI / entity->cShape->circle.getPointCount() * i)), static_cast<float>( std::sin(2 * M_PI / entity->cShape->circle.getPointCount() * i))}, 2);
         smallE->cLifespan = std::make_shared<CLifespan>(ennemy_config.L, ennemy_config.L);
         smallE->cScore = std::make_shared<CScore>(2 * entity->cScore->score);
     }
