@@ -31,6 +31,7 @@ class Game
     int score = 0;
     int current_frame = 0;
     int lastTimeEnemySpwanded = 0;
+    int lastTimeSpecSpwanded =0 ;
     bool paused = false;
     bool running = true;
 
@@ -50,7 +51,7 @@ class Game
     void spawnEnemy();
     void spawnSmallEnemies(std::shared_ptr<Entity> entity);
     void spwanBullet(std::shared_ptr<Entity> entity, const Vec2 &mousePos);
-    void spwanSpecWeapon(std::shared_ptr<Entity>);
+    void spwanSpecWeapon(std::shared_ptr<Entity>,const Vec2 &mousePos);
 
 public:
     Game(const std::string  & config);

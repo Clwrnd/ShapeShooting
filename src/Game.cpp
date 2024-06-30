@@ -69,6 +69,33 @@ void Game::sMovement()
             {
                 entity->cShape->circle.setFillColor(sf::Color(player_config.MR, player_config.MG, player_config.MB, (static_cast<float>(entity->cLifespan->remaining) / entity->cLifespan->total) * 255));
             }
+            if(entity->getTag()=="spW")
+            {
+               if(entity->cDelayedeffect->final_effect==(entity->cLifespan->total-entity->cLifespan->remaining))
+               {
+                 entity->cTransform->speed*=0; 
+                 auto wave = Mentities.addEntity("wave");
+                 wave->cShape = std::make_shared<CShape>(0, 100,sf::Color::Transparent,sf::Color::Magenta,1);
+                 wave->cTransform = std::make_shared<CTransform>(entity->cTransform->pos,
+                                                          Vec2{0, 0}, 0);
+                 wave->cWave = std::make_shared<CWave>(200);
+               } 
+               else if (entity->cDelayedeffect->final_effect>(entity->cLifespan->total-entity->cLifespan->remaining))
+               {
+                entity->cShape->circle.setFillColor(entity->cShape->circle.getFillColor()+sf::Color(2,0,0,0));
+               } 
+               else
+               {
+                entity->cShape->circle.setFillColor(entity->cShape->circle.getFillColor()-sf::Color(0,0,0,3));
+                entity->cShape->circle.setOutlineColor(entity->cShape->circle.getFillColor()-sf::Color(0,0,0,3));
+               } 
+            }
+            if(entity->getTag()=="wave")
+            {
+                entity->cShape->circle.setRadius(entity->cShape->circle.getRadius()+3);
+                entity->cShape->circle.setOrigin(entity->cShape->circle.getRadius(), entity->cShape->circle.getRadius());
+
+            }
             if (entity->getTag() == "ennemy" || entity->getTag() == "smallEnnemy")
             {
                 if (entity->cShape->circle.getGlobalBounds().left + entity->cTransform->speed.x < 0)
@@ -154,6 +181,10 @@ void Game::sUserInput()
             {
                 spwanBullet(player, Vec2{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)});
             }
+            if(event.mouseButton.button == sf::Mouse::Right)
+            {
+                spwanSpecWeapon(player,Vec2{static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)});
+            }
         }
 
         if (event.type == sf::Event::KeyPressed)
@@ -207,10 +238,17 @@ void Game::sLifespan()
 {
     for (auto e : Mentities.getEntities())
     {
-        if (e->getTag() == "bullet" || e->getTag() == "smallEnnemy" || e->getTag() == "mvPlayer")
+        if (e->getTag() == "bullet" || e->getTag() == "smallEnnemy" || e->getTag() == "mvPlayer"||e->getTag() == "spW")
         {
             e->cLifespan->remaining--;
             if (e->cLifespan->remaining == 0)
+            {
+                e->destroy();
+            }
+        }
+        if(e->getTag() == "wave")
+        {
+            if(e->cWave->radius<e->cShape->circle.getRadius())
             {
                 e->destroy();
             }
@@ -294,6 +332,30 @@ void Game::sCollision()
             score_text.setString(std::to_string(score));
         }
     }
+
+    for(auto wave : Mentities.getEntities("wave"))
+    {
+        for(auto ennemy:Mentities.getEntities("ennemy"))
+        {
+            if(wave->cTransform->pos.dist(ennemy->cTransform->pos)<wave->cShape->circle.getRadius()+ennemy_config.CR)
+            {
+                spawnSmallEnemies(ennemy);
+                ennemy->destroy();
+                score += ennemy->cScore->score;
+                score_text.setString(std::to_string(score));
+            }
+        }
+        
+        for(auto ennemy:Mentities.getEntities("smallEnnemy"))
+        {
+            if(wave->cTransform->pos.dist(ennemy->cTransform->pos)<wave->cShape->circle.getRadius()+ennemy_config.CR)
+            {
+                ennemy->destroy();
+                score += ennemy->cScore->score;
+                score_text.setString(std::to_string(score));
+            }
+        }
+    }
 }
 
 void Game::spawnPlayer()
@@ -313,7 +375,7 @@ void Game::spawnEnemy()
                                               sf::Color(rand() % 256, rand() % 256, rand() % 256), sf::Color(ennemy_config.OR, ennemy_config.OG, ennemy_config.OB), ennemy_config.OT);
     int borderY = ennemy->cShape->circle.getRadius()+ ennemy->cShape->circle.getOutlineThickness() ;
     int borderX = ennemy->cShape->circle.getLocalBounds().width;
-    ennemy->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(rand() % (window.getSize().x - borderY) + borderY), static_cast<float>(rand() % (window.getSize().y - borderY) + borderY)},
+    ennemy->cTransform = std::make_shared<CTransform>(Vec2{static_cast<float>(rand() % (window.getSize().x - 2*borderY) + borderY), static_cast<float>(rand() % (window.getSize().y - 2*borderY) + borderY)},
                                                       Vec2{static_cast<float>(std::pow(-1, (rand() % 2)) * (rand() % (ennemy_config.SMAX -
                                                                                                                       ennemy_config.SMIN + 1) +
                                                                                                             ennemy_config.SMIN)),
@@ -338,8 +400,22 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
     }
 }
 
-void Game::spwanSpecWeapon(std::shared_ptr<Entity> entity)
+void Game::spwanSpecWeapon(std::shared_ptr<Entity> entity,const Vec2 & mousePos)
 {
+    if (current_frame-lastTimeSpecSpwanded > 120)
+    {
+        auto spW = Mentities.addEntity("spW");
+        spW->cShape=std::make_shared<CShape>(15,100,sf::Color::Black,sf::Color::Red,3);
+        float angle = std::atan2(mousePos.y - player->cTransform->pos.y, mousePos.x - player->cTransform->pos.x);
+
+        Vec2 spe{ 2*std::cos(angle), 2*std::sin(angle)};
+        spW->cTransform = std::make_shared<CTransform>(player->cTransform->pos, spe , 2);
+        spW->cLifespan= std::make_shared<CLifespan>(240,240);
+        spW->cDelayedeffect = std::make_shared<CDelayedeffect>(125);
+
+        lastTimeSpecSpwanded= current_frame;
+    }
+    
 }
 
 void Game::spwanBullet(std::shared_ptr<Entity> player, const Vec2 &mousePos)

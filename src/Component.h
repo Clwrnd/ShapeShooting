@@ -73,3 +73,24 @@ public:
 
     CInput() {}
 };
+
+class CDelayedeffect
+{
+public:
+    int final_effect = 0;
+    CDelayedeffect(int f_e) 
+    : final_effect(f_e)
+    {   
+    };
+};
+
+class CWave
+{
+public:
+    int radius = 0;
+    CWave(int rad)
+    : radius(rad)
+    {
+
+    };
+};
