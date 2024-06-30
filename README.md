@@ -68,4 +68,4 @@ Source: https://www.youtube.com/watch?v=OmzU_-zbE7o&t=3675s
 An entire majority of the game's settings are adjustable via the config.txt file (you should change the path to it in the main.cpp), excecpt for the special Weapon that can
 uniquely me modified directly in the game.cpp file in the same name fonctions. 
 
-Large improvments and additions could be made to this project but as a training project and not a genuine long term project, it is largely satisfactory in this current state ! :)
+Large improvments and additions could be made to this project but as a training project and not a genuine long term project, it is for me largely satisfactory in this current state ! :)
