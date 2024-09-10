@@ -1,4 +1,9 @@
-﻿# Specifications
+# ShapeShooting
+
+Here's a little game I made using a Game Engine I coded from scratch (with the help of a lecture, see below), using the SMFL graphics library. \
+This project is built and configured with CMake in case you would like to clone it.
+ 
+ # Specifications
 
 ## Features:
 
