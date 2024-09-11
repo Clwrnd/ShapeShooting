@@ -1,6 +1,9 @@
 # ShapeShooting
 
 Here's a little game I made using a Game Engine I coded from scratch (with the help of a lecture, see below), using the SMFL graphics library. \
+Briefly: you are a certain shape and you have to destroy other differents shapes without being touched by these last, this with the help of two different weapons in order to obtain the best score. 
+
+
 This project is built and configured with CMake in case you would like to clone it.
  
  # Specifications
