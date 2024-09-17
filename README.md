@@ -7,6 +7,8 @@ Here's a little game I made using a Game Engine I coded from scratch (with the h
 
 
 This project is built and configured with CMake in case you would like to clone it.
+
+Lastly, an entire majority of the game's settings are adjustable via the config.txt file, excecpt for the special Weapon that can uniquely me modified directly in the game.cpp file in the same name fonctions. 
  
  # Specifications
 
@@ -74,8 +76,5 @@ When (large) enemies collide with a bullet or player, they are destroyed, and N 
  
 From **COMP 4300, Memorial University, CANADA** teached by **Associate Professor Dave Churchill**. \
 Source: https://www.youtube.com/watch?v=OmzU_-zbE7o&t=3675s
-
-An entire majority of the game's settings are adjustable via the config.txt file (you should change the path to it in the main.cpp), excecpt for the special Weapon that can
-uniquely me modified directly in the game.cpp file in the same name fonctions. 
 
 Large improvments and additions could be made to this project but as a training project and not a genuine long term project, it is for me largely satisfactory in this current state ! :)
